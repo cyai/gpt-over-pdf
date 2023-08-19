@@ -80,9 +80,6 @@ class GPTTrainPDF {
             returnSourceDocuments: true,
         });
 
-        console.log(question);
-        console.log(typeof question);
-
         const response = await chain.call({
             query: question,
         });

@@ -7,35 +7,20 @@ class TrainController {
         this.router = express.Router();
         this.gptTrainPdf = new GPTTrainPDF();
 
-        // Check if the cache has been initialized
-        if (!TrainController.cache) {
-            TrainController.cache = {
-                docs: null,
-                vectorStore: null,
-            };
-        }
-
         this.initializeRoutes();
     }
 
     async initializeVectorStore() {
         console.log("Embedding and storing");
-        if (TrainController.cache.docs && TrainController.cache.vectorStore) {
-            // Use cached data if available
-            console.log("Using cached data.");
-            return;
-        }
 
-        TrainController.cache.docs = await this.gptTrainPdf.loadPDF();
         const splitDocs = await this.gptTrainPdf.splitText(
-            TrainController.cache.docs
+            await this.gptTrainPdf.loadPDF()
         );
 
-        TrainController.cache.vectorStore =
-            await this.gptTrainPdf.embedAndStore(
-                splitDocs,
-                "src/assets/pdf/example.pdf"
-            );
+        await this.gptTrainPdf.embedAndStore(
+            splitDocs,
+            "src/assets/pdf/example.pdf"
+        );
 
         console.log("Embedding and storing completed successfully");
         console.log("-------------------------");
@@ -54,8 +39,6 @@ class TrainController {
             // Initialize the vector store if it's not already initialized
             await this.initializeVectorStore();
 
-            console.log("Loading chain");
-            console.log(typeof question);
             const response = await this.gptTrainPdf.loadChain(question);
             console.log("Chain loaded successfully");
             console.log("-------------------------");
