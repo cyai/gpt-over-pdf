@@ -1,8 +1,8 @@
-import { RetrievalQAChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { Chroma } from "langchain/vectorstores/chroma";
-import { PromptTemplate } from "langchain/prompts";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { PineconeClient } from "@pinecone-database/pinecone";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { VectorDBQAChain } from "langchain/chains";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -20,34 +20,38 @@ class GPTOverPDF {
         {context}
         Question: {question}
         Helpful Answer:`;
+
+        this.client = new PineconeClient();
     }
 
-    async loadVectorStore(collectionName) {
-        const vectorStore = await Chroma.fromExistingCollection(
-            new OpenAIEmbeddings(),
-            { collectionName: collectionName }
-        );
+    async loadChain(question) {
+        const embeddings = new OpenAIEmbeddings({
+            openAIApiKey: this.OPENAI_API_KEY,
+        });
+        await this.client.init({
+            apiKey: process.env.PINECONE_API_KEY,
+            environment: process.env.PINECONE_ENVIRONMENT,
+        });
+        const pineconeIndex = this.client.Index("gpt-over-index");
 
-        return vectorStore;
-    }
-
-    async loadChain(vectorStore, query) {
-        const chain = RetrievalQAChain.fromLLM(
-            this.model,
-            vectorStore.asRetriever(),
-            {
-                prompt: PromptTemplate.fromTemplate(this.template),
-            }
-        );
-
-        const response = await chain.call({
-            query: query,
+        const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+            pineconeIndex,
         });
 
-        console.log(response);
+        const chain = VectorDBQAChain.fromLLM(this.model, vectorStore, {
+            k: 1,
+            returnSourceDocuments: true,
+        });
 
-        //  Returning source documents
-        //   console.log(response.sourceDocuments[0]);
+        const response = await chain.call({
+            query: question,
+        });
+
+        console.log("~~~~ ANSWER: ");
+        console.log(response.text);
+
+        // //  Returning source documents
+        // console.log(response.sourceDocuments[0]);
 
         return response;
     }

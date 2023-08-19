@@ -1,13 +1,13 @@
 /** @format */
 
 import express from "express";
-import GPTAskPDF from "../services/gptAskPdf.js";
+import GPTOverPDF from "../services/gptAskPdf.js";
 
 class AskController {
     constructor() {
         this.path = "/gpt/pdf";
         this.router = express.Router();
-        this.gptAskpdf = new GPTAskPDF();
+        this.gptAskpdf = new GPTOverPDF();
 
         this.initializeRoutes();
     }
@@ -17,20 +17,17 @@ class AskController {
     }
 
     gptAskController = async (req, res) => {
-        const { collectionName, query } = req.body;
+        const { question } = req.body;
 
         try {
-            console.log("Loading vector store");
-            const vectorstore = await this.gptAskpdf.loadVectorStore(collectionName);
-            console.log("Vector store loaded successfully");
-            console.log("-------------------------")
-
-            console.log("Loading chain");
-            const response = await this.gptAskpdf.loadChain(vectorstore, query);
+            const response = await this.gptAskpdf.loadChain(question);
             console.log("Chain loaded successfully");
-            console.log("-------------------------")
+            console.log("-------------------------");
 
-            res.status(200).json({ message: "Success", response });
+            res.status(200).json({
+                message: response,
+                "source-doc": response.sourceDocuments[0],
+            });
         } catch (error) {
             console.error("An error occurred:", error);
             res.status(500).json({ error: "Internal Server Error" });
