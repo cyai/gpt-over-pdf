@@ -1,26 +1,24 @@
 import express from "express";
 import GPTTrainPDF from "../services/gptTrainPdf.js";
-
+import GPTOverPDF from "../services/gptAskPdf.js";
 class TrainController {
     constructor() {
         this.path = "/gpt/pdf";
         this.router = express.Router();
         this.gptTrainPdf = new GPTTrainPDF();
+        this.gptAskPdf = new GPTOverPDF();
 
         this.initializeRoutes();
     }
 
-    async initializeVectorStore() {
+    async initializeVectorStore(file) {
         console.log("Embedding and storing");
 
         const splitDocs = await this.gptTrainPdf.splitText(
-            await this.gptTrainPdf.loadPDF()
+            await this.gptTrainPdf.loadPDF(file)
         );
 
-        await this.gptTrainPdf.embedAndStore(
-            splitDocs,
-            "src/assets/pdf/example.pdf"
-        );
+        await this.gptTrainPdf.embedAndStore(splitDocs);
 
         console.log("Embedding and storing completed successfully");
         console.log("-------------------------");
@@ -31,19 +29,17 @@ class TrainController {
     }
 
     gptTrainController = async (req, res) => {
-        const { file, question } = req.body;
+        const { file } = req.body;
 
         try {
             console.log("Training started for file: ", file);
 
             // Initialize the vector store if it's not already initialized
-            await this.initializeVectorStore();
+            await this.initializeVectorStore(file);
 
-            const response = await this.gptTrainPdf.loadChain(question);
-            console.log("Chain loaded successfully");
-            console.log("-------------------------");
+            console.log("Training sucess!");
 
-            res.status(200).json({ message: "Success", response });
+            res.status(200).json({ message: "Success" });
         } catch (error) {
             console.error("An error occurred:", error);
             res.status(500).json({ error: "Internal Server Error" });
