@@ -32,7 +32,7 @@ class GPTOverPDF {
             apiKey: process.env.PINECONE_API_KEY,
             environment: process.env.PINECONE_ENVIRONMENT,
         });
-        const pineconeIndex = this.client.Index("gpt-over-index");
+        const pineconeIndex = this.client.Index(process.env.PINECONE_INDEX);
 
         const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
             pineconeIndex,
@@ -51,7 +51,7 @@ class GPTOverPDF {
         console.log(response.text);
 
         // //  Returning source documents
-        // console.log(response.sourceDocuments[0]);
+        console.log(response.sourceDocuments[0]);
 
         return response;
     }
