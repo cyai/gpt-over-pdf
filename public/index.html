@@ -7,16 +7,12 @@
     <body>
         <h1>PDF to Source and QA with GPT</h1>
         <form
-            action="http://localhost:8000/train/gpt/pdf"
+            action="http://localhost:8000/file-upload"
             method="post"
             enctype="multipart/form-data"
         >
             <input type="file" name="file" />
-            <input
-                type="submit"
-                value="Upload and Train"
-                onclick="uploadAndTrain(event)"
-            />
+            <input onclick="train()" type="submit" value="Upload and train" />
         </form>
 
         <!-- Chat Interface -->

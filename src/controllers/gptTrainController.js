@@ -14,11 +14,12 @@ class TrainController {
     async initializeVectorStore(file) {
         console.log("Embedding and storing");
 
-        const splitDocs = await this.gptTrainPdf.splitText(
-            await this.gptTrainPdf.loadPDF(file)
-        );
-
-        await this.gptTrainPdf.embedAndStore(splitDocs);
+        setTimeout(async () => {
+            const splitDocs = await this.gptTrainPdf.splitText(
+                await this.gptTrainPdf.loadPDF(file)
+            );
+            await this.gptTrainPdf.embedAndStore(splitDocs);
+        }, 3000); // 3000 milliseconds (3 seconds)
 
         console.log("Embedding and storing completed successfully");
         console.log("-------------------------");

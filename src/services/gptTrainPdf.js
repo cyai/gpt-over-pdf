@@ -46,7 +46,7 @@ class GPTTrainPDF {
             apiKey: process.env.PINECONE_API_KEY,
             environment: process.env.PINECONE_ENVIRONMENT,
         });
-        const pineconeIndex = this.client.Index("gpt-over-index");
+        const pineconeIndex = this.client.Index(process.env.PINECONE_INDEX);
 
         await PineconeStore.fromDocuments(splitDocs, embeddings, {
             pineconeIndex,

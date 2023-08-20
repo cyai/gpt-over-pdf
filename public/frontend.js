@@ -1,6 +1,4 @@
-function uploadAndTrain(event) {
-    event.preventDefault();
-
+const train = () => {
     const file = document.querySelector("input[name='file']").files[0];
     const fileName = file.name;
 
@@ -16,12 +14,12 @@ function uploadAndTrain(event) {
 
     fetch(request).then((response) => {
         if (response.ok) {
-            console.log("Successfully uploaded and trained the model");
+            console.log("Successfully trained the model");
         } else {
-            console.log("Error uploading and training the model");
+            console.log("Error training the model");
         }
     });
-}
+};
 
 const msgerForm = document.querySelector(".msger-inputarea");
 const msgerInput = document.querySelector(".msger-input");
