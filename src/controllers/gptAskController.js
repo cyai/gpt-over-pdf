@@ -33,6 +33,8 @@ class AskController {
             res.status(500).json({ error: "Internal Server Error" });
         }
     };
+
+    
 }
 
 export default AskController;

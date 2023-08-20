@@ -19,7 +19,7 @@ class GPTTrainPDF {
     }
 
     async loadPDF(path) {
-        const loader = new PDFLoader(`src/assets/pdf/${path}`);
+        const loader = new PDFLoader(`./src/assets/pdf/${path}`);
 
         const docs = await loader.load();
 
