@@ -3,6 +3,7 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { VectorDBQAChain } from "langchain/chains";
+import { PromptTemplate } from "langchain/prompts";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,6 +17,7 @@ class GPTOverPDF {
 
         this.template = `Use the following pieces of context to answer the question at the end.
         If you don't know the answer, just say that you don't know, don't try to make up an answer.
+        If the question is not from the context, just say that you don't know. Don't even remotely answer the question which is out of context or is loosely conencted with the context.
         Use three sentences maximum and keep the answer as concise as possible.
         {context}
         Question: {question}
@@ -41,6 +43,7 @@ class GPTOverPDF {
         const chain = VectorDBQAChain.fromLLM(this.model, vectorStore, {
             k: 1,
             returnSourceDocuments: true,
+            prompt: PromptTemplate.fromTemplate(this.template),
         });
 
         const response = await chain.call({
@@ -56,5 +59,6 @@ class GPTOverPDF {
         return response;
     }
 }
+``;
 
 export default GPTOverPDF;

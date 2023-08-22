@@ -28,8 +28,8 @@ class GPTTrainPDF {
 
     async splitText(docs) {
         const textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1500,
-            chunkOverlap: 50,
+            chunkSize: 500,
+            chunkOverlap: 10,
         });
 
         const splitDocs = await textSplitter.splitDocuments(docs);
