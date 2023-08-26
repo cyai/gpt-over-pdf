@@ -1,8 +1,7 @@
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeClient } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { VectorDBQAChain } from "langchain/chains";
+import { FaissStore } from "langchain/vectorstores/faiss";
 import { PromptTemplate } from "langchain/prompts";
 import dotenv from "dotenv";
 dotenv.config();
@@ -23,23 +22,15 @@ class GPTOverPDF {
         Question: {question}
         Helpful Answer:`;
 
-        this.client = new PineconeClient();
     }
 
     async loadChain(question) {
         const embeddings = new OpenAIEmbeddings({
             openAIApiKey: this.OPENAI_API_KEY,
         });
-        await this.client.init({
-            apiKey: process.env.PINECONE_API_KEY,
-            environment: process.env.PINECONE_ENVIRONMENT,
-        });
-        const pineconeIndex = this.client.Index(process.env.PINECONE_INDEX);
+        
 
-        const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-            pineconeIndex,
-        });
-
+        const vectorStore = await FaissStore.load("vectorstore-DB", embeddings);
         const chain = VectorDBQAChain.fromLLM(this.model, vectorStore, {
             k: 1,
             returnSourceDocuments: true,
