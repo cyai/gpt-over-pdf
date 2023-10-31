@@ -1,7 +1,6 @@
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { PineconeClient } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { FaissStore } from "langchain/vectorstores/faiss";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import dotenv from "dotenv";
@@ -14,8 +13,6 @@ class GPTTrainPDF {
             modelName: "gpt-3.5-turbo",
             openAIApiKey: this.OPENAI_API_KEY,
         });
-
-        this.client = new PineconeClient();
     }
 
     async loadPDF(path) {
@@ -28,8 +25,8 @@ class GPTTrainPDF {
 
     async splitText(docs) {
         const textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1500,
-            chunkOverlap: 50,
+            chunkSize: 500,
+            chunkOverlap: 10,
         });
 
         const splitDocs = await textSplitter.splitDocuments(docs);
@@ -42,15 +39,12 @@ class GPTTrainPDF {
             openAIApiKey: this.OPENAI_API_KEY,
         });
 
-        await this.client.init({
-            apiKey: process.env.PINECONE_API_KEY,
-            environment: process.env.PINECONE_ENVIRONMENT,
-        });
-        const pineconeIndex = this.client.Index(process.env.PINECONE_INDEX);
+        const vectorStore = await FaissStore.fromDocuments(
+            splitDocs,
+            embeddings
+        );
 
-        await PineconeStore.fromDocuments(splitDocs, embeddings, {
-            pineconeIndex,
-        });
+        await vectorStore.save("vectorstore-DB");
     }
 }
 

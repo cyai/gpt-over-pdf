@@ -18,7 +18,9 @@ class TrainController {
             const splitDocs = await this.gptTrainPdf.splitText(
                 await this.gptTrainPdf.loadPDF(file)
             );
-            await this.gptTrainPdf.embedAndStore(splitDocs);
+            const vectorStore = await this.gptTrainPdf.embedAndStore(splitDocs);
+
+            return vectorStore;
         }, 3000); // 3000 milliseconds (3 seconds)
 
         console.log("Embedding and storing completed successfully");
@@ -36,7 +38,7 @@ class TrainController {
             console.log("Training started for file: ", file);
 
             // Initialize the vector store if it's not already initialized
-            await this.initializeVectorStore(file);
+            const vectorStore = await this.initializeVectorStore(file);
 
             console.log("Training sucess!");
 
